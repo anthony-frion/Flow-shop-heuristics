@@ -1,3 +1,3 @@
-# Job-shop-heuristics
+# Flow-shop-scheduling heuristics
 
-Principe : recuit simulé pour trouver des optimums locaux puis algorithme génétique à partir de cette population
+Group project on creating heuristics to solve the NP-hard flow-shop scheduling problem.
