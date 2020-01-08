@@ -182,7 +182,7 @@ def reproduction2(seq1, seq2, F):
     return auxReproduction2(seq1, seq2, cut_point1, cut_point2, F)
 
 
-# Best possible reproduction of two sequences with one cut point
+# Best possible reproduction of two sequences with two cut point
 def bestReproduction2(seq1, seq2, F):
     best_child = seq1
     best_time = 100000
@@ -250,5 +250,6 @@ def seekBestReproductions(initialPopulation, reproductionAlgorithm):
 
 # Tests
 F = f.Flowshop()
-F.definir_par("jeu3.txt")
+F.definir_par("jeu2.txt")
 seekBestReproductions(200, bestReproduction1)
+
