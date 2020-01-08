@@ -20,14 +20,14 @@ def evaluate(sequence, nb_machines) :
     return ordo.duree()
 
 # creates a random scheduling and prints its information
-def random_scheduling(F) :
+"""def random_scheduling(F) :
     sequence = []
     while F.l_job != [] :
         sequence.append(F.l_job.pop(random.randint(0, len(F.l_job) - 1)))
     ordo = o.Ordonnancement(F.nb_machines)
     ordo.ordonnancer_liste_job(sequence)
     ordo.afficher()
-    print("The length of this scheduling is {}".format(evaluate(sequence, F.nb_machines)))
+    print("The length of this scheduling is {}".format(evaluate(sequence, F.nb_machines)))"""
 
 # Simple test of the 'evaluate' and 'random_scheduling' functions
 """F = f.Flowshop()
@@ -125,8 +125,8 @@ def recuit(F, initial_temperature, temperature_multiplier, final_temperature):
     return sequence, time
 
 
-# Auxilary function for the 'one cut point' reproduction
-def auxReproduction1(seq1, seq2, cut_point, F):
+# Auxilary function for the 'one cut point' reproduction from the left
+def LeftAuxReproduction1(seq1, seq2, cut_point, F):
     n = len(seq1)
     first_part = seq1[:cut_point]
     child_seq = first_part
@@ -140,10 +140,29 @@ def auxReproduction1(seq1, seq2, cut_point, F):
     return child_seq, time
 
 
+# Auxilary function for the 'one cut point' reproduction from the right
+def RightAuxReproduction1(seq1, seq2, cut_point, F):
+    n = len(seq1)
+    child_seq =  [J for J in seq2]
+    first_part = seq1[cut_point:]
+    ind=cut_point
+    for k in range(cut_point):
+        if seq1[k] not in first_part:
+            ind-=1
+            child_seq[ind]=seq1[k]
+    child_seq1=child_seq[ind:]
+    for i in range(cut_point,n):
+        if seq1[i] not in child_seq1:
+            ind-=1
+            child_seq[ind]=seq1[i]
+    time = evaluate(child_seq, F.nb_machines)
+    return child_seq, time
+
+
 # Random reproduction of two sequences with one cut point
-def reproduction1(seq1, seq2, F):
+def Leftreproduction1(seq1, seq2, F):
     cut_point = random.randint(0, len(seq1) - 1)
-    return auxReproduction1(seq1, seq2, cut_point, F)
+    return LeftAuxReproduction1(seq1, seq2, cut_point, F)
 
 
 # Best possible reproduction of two sequences with one cut point
@@ -151,7 +170,11 @@ def bestReproduction1(seq1, seq2, F):
     best_child = seq1
     best_time = 100000
     for cut_point in range(len(seq1)):
-        child_seq, time = auxReproduction1(seq1, seq2, cut_point, F)
+        child_seq, time = LeftAuxReproduction1(seq1, seq2, cut_point, F)
+        if time < best_time:
+            best_time = time
+            best_child = child_seq
+        child_seq, time = RightAuxReproduction1(seq1, seq2, cut_point, F)
         if time < best_time:
             best_time = time
             best_child = child_seq
