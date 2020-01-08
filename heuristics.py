@@ -250,6 +250,5 @@ def seekBestReproductions(initialPopulation, reproductionAlgorithm):
 
 # Tests
 F = f.Flowshop()
-F.definir_par("jeu2.txt")
 seekBestReproductions(200, bestReproduction1)
 
