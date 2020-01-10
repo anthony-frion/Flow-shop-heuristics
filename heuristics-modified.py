@@ -255,7 +255,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE):
         n+=1
         newpop = []
         for i in range( len(population)):
-            for j in range (k,len(population)):
+            for j in range (i,len(population)):
                 p=random.random()
                 if (p<PMATE):
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
