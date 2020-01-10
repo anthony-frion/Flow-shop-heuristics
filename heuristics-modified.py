@@ -118,7 +118,7 @@ def recuit(F, initial_temperature, temperature_multiplier, final_temperature):
     while temperature >= final_temperature:
         nei_seq = random_neighbour(sequence)
         nei_time = evaluate(nei_seq, F.nb_machines)
-        if nei_time <= time or np.exp( -(nei_time-time) / temperature) >= random.random():
+        if nei_time <= time or random.random() <= np.exp((time - nei_time) / temperature):
             sequence = nei_seq
             time = nei_time
         temperature *= temperature_multiplier
