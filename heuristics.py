@@ -248,6 +248,7 @@ def seekBestReproductions(initialPopulation, reproductionAlgorithm):
     print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
 
     population = recuits
+    print(population)
     while len(population) > 1:
         best_child, best_time = population[0]
         best_parent = 1
@@ -276,3 +277,5 @@ def seekBestReproductions(initialPopulation, reproductionAlgorithm):
 F = f.Flowshop()
 F.definir_par("jeu3.txt")
 seekBestReproductions(200, bestReproduction1)
+
+
