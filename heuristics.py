@@ -111,14 +111,14 @@ def random_neighbour(sequence):
 # Computes the simulated annealing and returns a sequence of jobs and the associated time
 # For each iteration the temperature is multiplied by the 'temperature_multiplier' parameter
 # Once the temperature is under the 'final_temperature' parameter, the algorithm stops
-def recuit(F, initial_temperature, temperature_multiplier, final_temperature):
+def recuit(F, initial_temperature, temperature_multiplier, final_temperature) :
     sequence = random_sequence(F)
     time = evaluate(sequence, F.nb_machines)
     temperature = initial_temperature
-    while temperature >= final_temperature:
+    while temperature >= final_temperature :
         nei_seq = random_neighbour(sequence)
         nei_time = evaluate(nei_seq, F.nb_machines)
-        if nei_time <= time or np.exp(- (time - nei_time) / temperature) <= random.random():
+        if nei_time <= time or random.random() <= np.exp((time - nei_time) / temperature):
             sequence = nei_seq
             time = nei_time
         temperature *= temperature_multiplier
@@ -197,7 +197,7 @@ def auxReproduction2(seq1, seq2, cut_point1, cut_point2, F):
     return child_seq, time
 
 
-# Random reproduction of two sequences with one cut point
+# Random reproduction of two sequences with two cut points
 def reproduction2(seq1, seq2, F):
     cut_point1, cut_point2 = 0, 0
     while cut_point1 >= cut_point2:
@@ -205,7 +205,7 @@ def reproduction2(seq1, seq2, F):
     return auxReproduction2(seq1, seq2, cut_point1, cut_point2, F)
 
 
-# Best possible reproduction of two sequences with one cut point
+# Best possible reproduction of two sequences with two cut points
 def bestReproduction2(seq1, seq2, F):
     best_child = seq1
     best_time = 100000
@@ -217,6 +217,20 @@ def bestReproduction2(seq1, seq2, F):
                 best_child = child_seq
     return best_child, best_time
 
+# Tries n random reproductions with two cut points (n being the number of jobs)
+# This is much faster than trying all the possibilities with two cut points as there are about n**2 possibilities
+def bestOfNReproduction2(seq1, seq2, F) :
+    best_child = seq1
+    best_time = 100000
+    cut_point1, cut_point2 = 0, 0
+    for k in range(len(seq1)) :
+        while cut_point1 >= cut_point2 :
+            cut_point1, cut_point2 = random.randint(0, len(seq1) - 1), random.randint(0, len(seq1) - 1)
+        child_seq, time = auxReproduction2(seq1, seq2, cut_point1, cut_point2, F)
+        if time < best_time :
+            best_time = time
+            best_child = child_seq
+    return best_child, best_time
 
 # Generates an initial population of solutions with the simulated annealing,
 # Then makes them reproduce themselves following a 'binary tree' structure :
@@ -224,7 +238,7 @@ def bestReproduction2(seq1, seq2, F):
 def binaryTreeReproductions(initialPopulation, reproductionAlgorithm):
     recuits = []
     for k in range(initialPopulation):
-        sequence, time = recuit(F, 20, 0.99, 1)
+        sequence, time = recuit(F, 5, 0.99, .1)
         recuits.append((sequence, time))
     print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
     population = recuits
@@ -243,7 +257,7 @@ def binaryTreeReproductions(initialPopulation, reproductionAlgorithm):
 def seekBestReproductions(initialPopulation, reproductionAlgorithm):
     recuits = []
     for k in range(initialPopulation):
-        sequence, time = recuit(F, 20, 0.99, 1)
+        sequence, time = recuit(F, 5, 0.99, .1)
         recuits.append((sequence, time))
     print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
 
@@ -260,15 +274,21 @@ def seekBestReproductions(initialPopulation, reproductionAlgorithm):
                 best_parent = k
         print("Obtaining time {} from parents of times {} and {}".format(best_time, snd(population[0]),
                                                                          snd(population[best_parent])))
-        population.pop(0)
-        if best_parent != 1:
-            population.pop(best_parent - 1)
-        else:
+        if best_parent != 1 :
+            population.pop(best_parent)
+            population.pop(0)
+        elif len(population) > 2 :
+            population.pop(0)
             to_remove = 0
-            for k in range(len(population)):
-                if snd(population[k]) > snd(population[to_remove]):
+            for k in range(len(population)) :
+                if snd(population[k]) > snd(population[to_remove]) :
                     to_remove = k
             population.pop(to_remove)
+        else :
+            if snd(population[0]) <= snd(population[1]) :
+                population.clear()
+            else :
+                population.pop(0)
         population.append((best_child, best_time))
     print(population[0])
 
