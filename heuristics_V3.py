@@ -277,7 +277,7 @@ def binaryTreeReproductions(initialPopulation, reproductionAlgorithm):
 # At each step it seeks a good possible reproduction between the first element of the population and the others
 # Then it kills the parents and adds the new found solution to the population
 # The goal is to reduce the time, so it always looks for reproductions which the child is better than both the parents
-def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE):
+def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATION):
     recuits = []
     for k in range(poplen):
         sequence, time = recuit(F, 20, 0.99, 1)
@@ -289,10 +289,15 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE):
     while n<ITERATIONS:
         n+=1
         newpop = []
+        for i in range(len(population)) :
+            p = random.random()
+            if p < PMUTATION :
+                neighbour = random_neighbour(fst(population[i]))
+                population[i] = (neighbour, evaluate(neighbour, nb_machines))
         for i in range( len(population)):
             for j in range (i,len(population)):
-                p=random.random()
-                if (p<PMATE):
+                p = random.random()
+                if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
                     newpop.append(cand)
         print("test")
@@ -314,5 +319,6 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE):
 
 # Tests
 F = f.Flowshop()
-F.definir_par("jeu3.txt")
-seekBestReproductions(50, reproduction12,10,.2)
+F.definir_par("tai11.txt")
+F.creer_liste_NEH()
+seekBestReproductions(60, reproduction12,10,.2, .1)
