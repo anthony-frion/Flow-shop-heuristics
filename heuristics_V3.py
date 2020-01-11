@@ -106,6 +106,16 @@ def random_neighbour(sequence):
     else:
         return insert(sequence, index1, index2)
 
+def random_neighbourAux(father,nb_machines):
+    SeqChild=random_neighbour(fst(father))
+    time=evaluate(SeqChild, nb_machines)
+    if time<snd(father):
+        return SeqChild,time
+    else:
+        return None
+
+
+
 # Computes the simulated annealing and returns a sequence of jobs and the associated time
 # For each iteration the temperature is multiplied by the 'temperature_multiplier' parameter
 # Once the temperature is under the 'final_temperature' parameter, the algorithm stops
@@ -297,8 +307,9 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         for i in range(len(population)) :
             p = random.random()
             if p < PMUTATION :
-                neighbour = random_neighbour(fst(population[i]))
-                newpop.append([neighbour, evaluate(neighbour, nb_machines)])
+                neighbour = random_neighbourAux(population[i],nb_machines)
+                if neighbour!=None:
+                    newpop.append(neighbour)
         for i in range( len(population)):
             for j in range (i,len(population)):
                 p = random.random()
@@ -324,4 +335,4 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 F = f.Flowshop()
 F.definir_par("jeu3.txt")
 F.creer_liste_NEH()
-seekBestReproductions(5, reproduction12,7,1,1)
+seekBestReproductions(50, reproduction12,50,0.1,0.1)
