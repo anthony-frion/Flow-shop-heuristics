@@ -169,8 +169,13 @@ def Leftreproduction1(seq1, seq2, nb_machines):
 def bestReproduction1(seq1, seq2, nb_machines):
     best_child = seq1
     best_time = 100000
+    print("yoooo")
+    print(evaluate(seq1,nb_machines))
+    print(evaluate(seq2,nb_machines))
     for cut_point in range(len(seq1)):
         child_seq, time = LeftAuxReproduction1(seq1, seq2, cut_point,nb_machines)
+        print("yo")
+        print(time)
         if time < best_time:
             best_time = time
             best_child = child_seq
@@ -269,7 +274,6 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE):
         print("nw pop")
         print([snd(x) for x in newpop])
         print("bst pop")
-        print(poplen)
         population = population[:poplen]
         print([snd(x) for x in population])
     print(population[0])
@@ -279,7 +283,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE):
 
 # Tests
 F = f.Flowshop()
-F.definir_par("jeu3.txt")
-seekBestReproductions(5, bestReproduction1,5,1)
+F.definir_par("jeu1.txt")
+seekBestReproductions(5, bestReproduction1,100,1)
 
 

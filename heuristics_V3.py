@@ -206,7 +206,11 @@ def auxReproduction12(seq1, seq2, cut_point, nb_machines) :
 # Random reproduction of two sequences with one cut point
 def reproduction12(seq1, seq2, F) :
     cut_point = random.randint(0, len(seq1) - 1)
-    return auxReproduction12(seq1, seq2, cut_point, F)
+    child=auxReproduction12(seq1, seq2, cut_point, F)
+    if child[0]==seq1 or child[0]==seq2 :
+        return None
+    return child
+
 
 def bestReproduction12(seq1, seq2, F) :
     best_child = seq1
@@ -289,28 +293,27 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
     while n<ITERATIONS:
         n+=1
         newpop = []
+
         for i in range(len(population)) :
             p = random.random()
             if p < PMUTATION :
                 neighbour = random_neighbour(fst(population[i]))
-                population[i] = (neighbour, evaluate(neighbour, nb_machines))
+                newpop.append([neighbour, evaluate(neighbour, nb_machines)])
         for i in range( len(population)):
             for j in range (i,len(population)):
                 p = random.random()
                 if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
-                    newpop.append(cand)
-        print("test")
-        population.extend(newpop)
-        print("pop")
+                    if cand!=None :
+                        newpop.append(cand)
+        print("pop without offspring")
         print([snd(x) for x in population])
+        population.extend(newpop)
         population.sort(key=operator.itemgetter(1))
         population=population[:poplen]
         print("nw pop")
         print([snd(x) for x in newpop])
         print("bst pop")
-        print(poplen)
-        population = population[:poplen]
         print([snd(x) for x in population])
     print(population[0])
 
@@ -319,6 +322,6 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 
 # Tests
 F = f.Flowshop()
-F.definir_par("tai11.txt")
+F.definir_par("jeu3.txt")
 F.creer_liste_NEH()
-seekBestReproductions(60, reproduction12,10,.2, .1)
+seekBestReproductions(5, reproduction12,7,1,1)

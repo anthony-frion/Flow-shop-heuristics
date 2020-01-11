@@ -96,6 +96,7 @@ class Flowshop():
         for operation in range(machine) :
             nouvelle_date_debut = max(nouvelle_date_fin, ordo.date_disponibilite(operation))
             nouvelle_date_fin = nouvelle_date_debut + job.duree_operation(operation)
+            #ordo.date_dispo[operation]=nouvelle_date_fin
         return nouvelle_date_fin - ordo.date_disponibilite(0)
             
 
@@ -173,7 +174,7 @@ class Flowshop():
         print("La meilleure durée est " + str(dureeMeilleurOrdo))
         print("Un ordonnancement optimal est " + str([j.numero() for j in meilleurOrdo]))
         return meilleurOrdo, dureeMeilleurOrdo
-
+"""
 F = Flowshop()
 F.definir_par("jeu2.txt")
 O = o.Ordonnancement(F.nb_machines)
@@ -184,7 +185,7 @@ F.evaluation_separation()
 
 if __name__ == "__main__":
     pass
-
+"""
 #Test Commit Juliette
 #Test Timo
 #Test Anthony
