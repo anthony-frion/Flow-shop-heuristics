@@ -292,6 +292,7 @@ def binaryTreeReproductions(initialPopulation, reproductionAlgorithm):
 # Then it kills the parents and adds the new found solution to the population
 # The goal is to reduce the time, so it always looks for reproductions which the child is better than both the parents
 def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATION):
+    #RECUIT
     recuits = []
     for k in range(poplen):
         sequence, time = recuit(F, 20, 0.99, 1)
@@ -304,23 +305,39 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         n+=1
         newpop = []
 
+
+        #MUTATION
         for i in range(len(population)) :
             p = random.random()
             if p < PMUTATION :
                 neighbour = random_neighbourAux(population[i],nb_machines)
-                if neighbour!=None:
+                if neighbour!=None:# IF NOT CLONE
                     newpop.append(neighbour)
+        #MATE
         for i in range( len(population)):
             for j in range (i,len(population)):
                 p = random.random()
                 if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
-                    if cand!=None :
+                    if cand!=None :#IF NOT CLONE
                         newpop.append(cand)
         print("pop without offspring")
         print([snd(x) for x in population])
         population.extend(newpop)
         population.sort(key=operator.itemgetter(1))
+
+        #DELETE CLONES
+        m1=population[0]
+        ind=0
+        m2=population[len(population)-1]
+        while m1!=m2:
+            if population[ind]==population[ind+1]:
+                population.pop(ind+1)
+            else:
+                ind+=1
+                m1=population[ind+1]
+
+        #TESTS
         population=population[:poplen]
         print("nw pop")
         print([snd(x) for x in newpop])
@@ -335,4 +352,4 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 F = f.Flowshop()
 F.definir_par("jeu3.txt")
 F.creer_liste_NEH()
-seekBestReproductions(50, reproduction12,50,0.1,0.1)
+seekBestReproductions(5, reproduction12,10,0.1,0.1)
