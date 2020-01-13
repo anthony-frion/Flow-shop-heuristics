@@ -330,7 +330,11 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         m1=population[0]
         ind=0
         m2=population[len(population)-1]
+        print("TST")
+        print(m2)
         while m1!=m2:
+            print("pop")
+            print([snd(x) for x in population])
             if population[ind]==population[ind+1]:
                 population.pop(ind+1)
             else:
@@ -352,4 +356,4 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 F = f.Flowshop()
 F.definir_par("jeu3.txt")
 F.creer_liste_NEH()
-seekBestReproductions(5, reproduction12,10,0.1,0.1)
+seekBestReproductions(10, reproduction12,10,1,1)
