@@ -339,7 +339,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
                 population.pop(ind+1)
             else:
                 ind+=1
-                m1=population[ind+1]
+                m1=population[ind]
 
         #TESTS
         population=population[:poplen]
