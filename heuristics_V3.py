@@ -311,7 +311,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
             p = random.random()
             if p < PMUTATION :
                 neighbour = random_neighbourAux(population[i],nb_machines)
-                if neighbour!=None:# IF NOT CLONE
+                if neighbour!=None:# IF NOT CLONE --> Faux attention : if meilleur que son pere pas if not clone
                     newpop.append(neighbour)
         #MATE
         for i in range( len(population)):
@@ -319,7 +319,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
                 p = random.random()
                 if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
-                    if cand!=None :#IF NOT CLONE
+                    if cand!=None :#IF NOT CLONE --> attention seul reprod12 contient l'output none, pas les autres algos de reprod
                         newpop.append(cand)
         print("pop without offspring")
         print([snd(x) for x in population])
