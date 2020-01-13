@@ -66,7 +66,7 @@ class Flowshop():
         O = []
         result = []
         for J in L :
-            cand = 1000
+            cand = 2000
             lcand = []
             for k in range(len(result) + 1) :
                 copy = [job for job in result]
