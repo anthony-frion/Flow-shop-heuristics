@@ -70,13 +70,11 @@ class Ordonnancement():
     # exo 3 A REMPLIR
     def ordonnancer_liste_job(self, liste_jobs):
         for J in liste_jobs :
-            self.ordonnancer_job(J)
-        nv_liste_jobs = []
+            for machine in range(self.nb_machines) :
+                self.fixer_date_debut_operation(J, machine, 0)
         for J in liste_jobs :
-            NJ = job.Job(J.numero(), J.duree_op)
-            nv_liste_jobs.append(NJ)
+            self.ordonnancer_job(J)
         self.dur = self.date_disponibilite(self.nb_machines-1)
-        #return nv_liste_jobs
         
         
 

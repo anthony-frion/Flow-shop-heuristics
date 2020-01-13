@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jan  3 16:56:13 2020
-
 @author: Anthony
 """
 
@@ -9,7 +8,7 @@ import random
 
 import ordonnancement as o
 import flowshop as f
-
+import operator
 import numpy as np
 
 
@@ -107,6 +106,15 @@ def random_neighbour(sequence):
     else:
         return insert(sequence, index1, index2)
 
+def random_neighbourAux(father,nb_machines):
+    SeqChild=random_neighbour(fst(father))
+    time=evaluate(SeqChild, nb_machines)
+    if time<snd(father):
+        return SeqChild,time
+    else:
+        return None
+
+
 
 # Computes the simulated annealing and returns a sequence of jobs and the associated time
 # For each iteration the temperature is multiplied by the 'temperature_multiplier' parameter
@@ -126,7 +134,7 @@ def recuit(F, initial_temperature, temperature_multiplier, final_temperature) :
 
 
 # Auxilary function for the 'one cut point' reproduction from the left
-def LeftAuxReproduction1(seq1, seq2, cut_point, F):
+def LeftAuxReproduction1(seq1, seq2, cut_point,nb_machines):
     n = len(seq1)
     first_part = seq1[:cut_point]
     child_seq = first_part
@@ -136,50 +144,93 @@ def LeftAuxReproduction1(seq1, seq2, cut_point, F):
     for i in range(cut_point):
         if seq2[i] not in child_seq:
             child_seq.append(seq2[i])
-    time = evaluate(child_seq, F.nb_machines)
+    time = evaluate(child_seq, nb_machines)
     return child_seq, time
 
 
 # Auxilary function for the 'one cut point' reproduction from the right
-def RightAuxReproduction1(seq1, seq2, cut_point, F):
+def RightAuxReproduction1(seq1, seq2, cut_point,nb_machines):
     n = len(seq1)
-    child_seq =  [J for J in seq2]
-    first_part = seq1[cut_point:]
-    ind=cut_point
+    last_part = seq1[cut_point:]
+    first_part = []
     for k in range(cut_point):
-        if seq1[k] not in first_part:
-            ind-=1
-            child_seq[ind]=seq1[k]
-    child_seq1=child_seq[ind:]
-    for i in range(cut_point,n):
-        if seq1[i] not in child_seq1:
-            ind-=1
-            child_seq[ind]=seq1[i]
-    time = evaluate(child_seq, F.nb_machines)
+        if seq2[k] not in last_part:
+            first_part.append(seq2[k])
+    for k in range(cut_point,n):
+        if seq2[k] not in last_part:
+            first_part.append(seq2[k])
+    child_seq = first_part + last_part
+    time = evaluate(child_seq, nb_machines)
     return child_seq, time
 
 
 # Random reproduction of two sequences with one cut point
-def Leftreproduction1(seq1, seq2, F):
+def Leftreproduction1(seq1, seq2, nb_machines):
     cut_point = random.randint(0, len(seq1) - 1)
-    return LeftAuxReproduction1(seq1, seq2, cut_point, F)
+    return LeftAuxReproduction1(seq1, seq2, cut_point, nb_machines)
 
 
 # Best possible reproduction of two sequences with one cut point
-def bestReproduction1(seq1, seq2, F):
+def bestReproduction1(seq1, seq2, nb_machines):
     best_child = seq1
     best_time = 100000
     for cut_point in range(len(seq1)):
-        child_seq, time = LeftAuxReproduction1(seq1, seq2, cut_point, F)
+        child_seq, time = LeftAuxReproduction1(seq1, seq2, cut_point,nb_machines)
         if time < best_time:
             best_time = time
             best_child = child_seq
-        child_seq, time = RightAuxReproduction1(seq1, seq2, cut_point, F)
+        child_seq, time = RightAuxReproduction1(seq1, seq2, cut_point,nb_machines)
         if time < best_time:
             best_time = time
             best_child = child_seq
     return best_child, best_time
 
+def bestInsertion( uncomplete_sequence, job_to_insert, nb_machines) :
+    cand = 1000000
+    for k in range(len(uncomplete_sequence) + 1) :
+        copy = [job for job in uncomplete_sequence]
+        copy.insert(k, job_to_insert)
+        O = o.Ordonnancement(nb_machines)
+        O.ordonnancer_liste_job(copy)
+        if O.dur < cand :
+            cand = O.dur
+            lcand = copy
+        for job in copy :
+            job.date_deb = [0 for d in job.date_deb]
+    return lcand
+
+#Same as auxReproduction1 but instead of appending the last jobs it inserts them at the best possible places
+def auxReproduction12(seq1, seq2, cut_point, nb_machines) :
+    n = len(seq1)
+    first_part = seq1[:cut_point]
+    child_seq = [J for J in first_part]
+    for k in range(cut_point, n) :
+        if seq2[k] not in first_part :
+            child_seq.append(seq2[k])
+    for k in range(cut_point) :
+        if seq2[k] not in first_part :
+            child_seq = bestInsertion(child_seq, seq2[k], nb_machines)
+    time = evaluate(child_seq, nb_machines)
+    return child_seq, time
+
+# Random reproduction of two sequences with one cut point
+def reproduction12(seq1, seq2, F) :
+    cut_point = random.randint(0, len(seq1) - 1)
+    child=auxReproduction12(seq1, seq2, cut_point, F)
+    if child[0]==seq1 or child[0]==seq2 :
+        return None
+    return child
+
+
+def bestReproduction12(seq1, seq2, F) :
+    best_child = seq1
+    best_time = 100000
+    for cut_point in range(len(seq1)) :
+        child_seq, time = auxReproduction12(seq1, seq2, cut_point, F)
+        if time < best_time :
+            best_time = time
+            best_child = child_seq
+    return best_child, best_time
 
 # Auxilary function for the 'two cut points' reproduction
 def auxReproduction2(seq1, seq2, cut_point1, cut_point2, F):
@@ -197,7 +248,7 @@ def auxReproduction2(seq1, seq2, cut_point1, cut_point2, F):
     return child_seq, time
 
 
-# Random reproduction of two sequences with two cut points
+# Random reproduction of two sequences with one cut point
 def reproduction2(seq1, seq2, F):
     cut_point1, cut_point2 = 0, 0
     while cut_point1 >= cut_point2:
@@ -205,7 +256,7 @@ def reproduction2(seq1, seq2, F):
     return auxReproduction2(seq1, seq2, cut_point1, cut_point2, F)
 
 
-# Best possible reproduction of two sequences with two cut points
+# Best possible reproduction of two sequences with one cut point
 def bestReproduction2(seq1, seq2, F):
     best_child = seq1
     best_time = 100000
@@ -217,20 +268,6 @@ def bestReproduction2(seq1, seq2, F):
                 best_child = child_seq
     return best_child, best_time
 
-# Tries n random reproductions with two cut points (n being the number of jobs)
-# This is much faster than trying all the possibilities with two cut points as there are about n**2 possibilities
-def bestOfNReproduction2(seq1, seq2, F) :
-    best_child = seq1
-    best_time = 100000
-    cut_point1, cut_point2 = 0, 0
-    for k in range(len(seq1)) :
-        while cut_point1 >= cut_point2 :
-            cut_point1, cut_point2 = random.randint(0, len(seq1) - 1), random.randint(0, len(seq1) - 1)
-        child_seq, time = auxReproduction2(seq1, seq2, cut_point1, cut_point2, F)
-        if time < best_time :
-            best_time = time
-            best_child = child_seq
-    return best_child, best_time
 
 # Generates an initial population of solutions with the simulated annealing,
 # Then makes them reproduce themselves following a 'binary tree' structure :
@@ -238,7 +275,7 @@ def bestOfNReproduction2(seq1, seq2, F) :
 def binaryTreeReproductions(initialPopulation, reproductionAlgorithm):
     recuits = []
     for k in range(initialPopulation):
-        sequence, time = recuit(F, 5, 0.99, .1)
+        sequence, time = recuit(F, 20, 0.99, 1)
         recuits.append((sequence, time))
     print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
     population = recuits
@@ -254,48 +291,69 @@ def binaryTreeReproductions(initialPopulation, reproductionAlgorithm):
 # At each step it seeks a good possible reproduction between the first element of the population and the others
 # Then it kills the parents and adds the new found solution to the population
 # The goal is to reduce the time, so it always looks for reproductions which the child is better than both the parents
-def seekBestReproductions(initialPopulation, reproductionAlgorithm):
+def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATION):
+    #RECUIT
     recuits = []
-    for k in range(initialPopulation):
-        sequence, time = recuit(F, 5, 0.99, .1)
+    for k in range(poplen):
+        sequence, time = recuit(F, 20, 0.99, 1)
         recuits.append((sequence, time))
     print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
-
     population = recuits
-    print(population)
-    while len(population) > 1:
-        best_child, best_time = population[0]
-        best_parent = 1
-        for k in range(1, len(population)):
-            child, time = reproductionAlgorithm(fst(population[0]), fst(population[k]), F)
-            if time < best_time and time < snd(population[k]) and time < snd(population[0]):
-                best_time = time
-                best_child = child
-                best_parent = k
-        print("Obtaining time {} from parents of times {} and {}".format(best_time, snd(population[0]),
-                                                                         snd(population[best_parent])))
-        if best_parent != 1 :
-            population.pop(best_parent)
-            population.pop(0)
-        elif len(population) > 2 :
-            population.pop(0)
-            to_remove = 0
-            for k in range(len(population)) :
-                if snd(population[k]) > snd(population[to_remove]) :
-                    to_remove = k
-            population.pop(to_remove)
-        else :
-            if snd(population[0]) <= snd(population[1]) :
-                population.clear()
-            else :
-                population.pop(0)
-        population.append((best_child, best_time))
+    nb_machines=F.nb_machines
+    n=0
+    while n<ITERATIONS:
+        n+=1
+        newpop = []
+
+
+        #MUTATION
+        for i in range(len(population)) :
+            p = random.random()
+            if p < PMUTATION :
+                neighbour = random_neighbourAux(population[i],nb_machines)
+                if neighbour!=None:# IF NOT CLONE
+                    newpop.append(neighbour)
+        #MATE
+        for i in range( len(population)):
+            for j in range (i,len(population)):
+                p = random.random()
+                if p < PMATE :
+                    cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
+                    if cand!=None :#IF NOT CLONE
+                        newpop.append(cand)
+        print("pop without offspring")
+        print([snd(x) for x in population])
+        population.extend(newpop)
+        population.sort(key=operator.itemgetter(1))
+
+        #DELETE CLONES
+        m1=population[0]
+        ind=0
+        m2=population[len(population)-1]
+        print("TST")
+        print(m2)
+        while m1!=m2:
+            print("pop")
+            print([snd(x) for x in population])
+            if population[ind]==population[ind+1]:
+                population.pop(ind+1)
+            else:
+                ind+=1
+                m1=population[ind+1]
+
+        #TESTS
+        population=population[:poplen]
+        print("nw pop")
+        print([snd(x) for x in newpop])
+        print("bst pop")
+        print([snd(x) for x in population])
     print(population[0])
+
+
 
 
 # Tests
 F = f.Flowshop()
 F.definir_par("jeu3.txt")
-seekBestReproductions(200, bestReproduction1)
-
-
+F.creer_liste_NEH()
+seekBestReproductions(10, reproduction12,10,1,1)
