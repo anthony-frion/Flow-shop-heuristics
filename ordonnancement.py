@@ -83,8 +83,9 @@ O = Ordonnancement(3)
     
 if __name__ == "__main__":
     pass
-'''
-J1 = job.Job(1, [4,5,7])
+
+
+'''J1 = job.Job(1, [4,5,7])
 J2 = job.Job(2, [9,3,4])
 J3 = job.Job(3, [2,6,4])
 O = Ordonnancement(3)

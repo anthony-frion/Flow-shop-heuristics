@@ -339,7 +339,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
                 population.pop(ind+1)
             else:
                 ind+=1
-                m1=population[ind+1]
+                m1=population[ind]
 
         #TESTS
         population=population[:poplen]
@@ -347,7 +347,12 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         print([snd(x) for x in newpop])
         print("bst pop")
         print([snd(x) for x in population])
-    print(population[0])
+
+    print("Coût de la meilleure séquence : ", population[0][1])
+    solution = []
+    for k in range(0, len(population[0][0])):
+        solution.append(population[0][0][k].numero())
+    print("Séquence solution", solution)
 
 
 
