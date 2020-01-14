@@ -167,7 +167,17 @@ def RightAuxReproduction1(seq1, seq2, cut_point,nb_machines):
 # Random reproduction of two sequences with one cut point
 def Leftreproduction1(seq1, seq2, nb_machines):
     cut_point = random.randint(0, len(seq1) - 1)
-    return LeftAuxReproduction1(seq1, seq2, cut_point, nb_machines)
+    child=LeftAuxReproduction1(seq1, seq2, cut_point, nb_machines)
+    if child[0]==seq1 or child[0]==seq2 :
+        return None
+    return child
+
+def Rightreproduction1(seq1, seq2, nb_machines):
+    cut_point = random.randint(0, len(seq1) - 1)
+    child=RightAuxReproduction1(seq1, seq2, cut_point, nb_machines)
+    if child[0]==seq1 or child[0]==seq2 :
+        return None
+    return child
 
 
 # Best possible reproduction of two sequences with one cut point
@@ -311,7 +321,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
             p = random.random()
             if p < PMUTATION :
                 neighbour = random_neighbourAux(population[i],nb_machines)
-                if neighbour!=None:# IF NOT CLONE --> Faux attention : if meilleur que son pere pas if not clone
+                if neighbour!=None:# if better than population[i]
                     newpop.append(neighbour)
         #MATE
         for i in range( len(population)):
@@ -319,7 +329,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
                 p = random.random()
                 if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
-                    if cand!=None :#IF NOT CLONE --> attention seul reprod12 contient l'output none, pas les autres algos de reprod
+                    if cand!=None :#IF NOT CLONE
                         newpop.append(cand)
         print("pop without offspring")
         print([snd(x) for x in population])
