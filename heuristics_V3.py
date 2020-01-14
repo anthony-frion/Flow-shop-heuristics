@@ -306,7 +306,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
     #RECUIT
     recuits = []
     for k in range(poplen):
-        sequence, time = recuit(F, 20, 0.99, 1)
+        sequence, time = recuit(F, 20, 0.99, .5)
         recuits.append((sequence, time))
     print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
     population = recuits
@@ -318,19 +318,20 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 
 
         #MUTATION
+        mutations = 0
         for i in range(len(population)) :
-            p = random.random()
-            if p < PMUTATION :
-                neighbour = random_neighbour(fst(population[i]))
-                neighbour_time = evaluate(neighbour, nb_machines)
-                if time < snd(population[i]):
-                    population[i] = (neighbour, neighbour_time)
-                else :
-                    population.append((neighbour, neighbour_time))
+            
+            neighbour = random_neighbour(fst(population[i]))
+            neighbour_time = evaluate(neighbour, nb_machines)
+            p = random.random() * (1 + i / poplen) / 2
+            if time < snd(population[i]) or p < PMUTATION:
+                population.append((neighbour, neighbour_time))
+                mutations += 1
+        print("{} mutations effectuées".format(mutations))
         #MATE
         for i in range( len(population)):
             for j in range (i,len(population)):
-                p = random.random()
+                p = random.random() * (1 + i/len(population) + j/len(population)) / 3
                 if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
                     if cand!=None :#IF NOT CLONE --> attention seul reprod12 contient l'output none, pas les autres algos de reprod
@@ -345,7 +346,6 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         ind=0
         m2=population[len(population)-1]
         print("TST")
-        print(m2)
         while m1!=m2:
             if equal(population[ind], population[ind+1]):
                 population.pop(ind+1)
