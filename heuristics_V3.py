@@ -10,7 +10,7 @@ import ordonnancement as o
 import flowshop as f
 import operator
 import numpy as np
-
+import time as t
 
 # schedules jobs according to a sequence and returns the corresponding length
 def evaluate(sequence, nb_machines) :
@@ -302,6 +302,7 @@ def binaryTreeReproductions(initialPopulation, reproductionAlgorithm):
 # Then it kills the parents and adds the new found solution to the population
 # The goal is to reduce the time, so it always looks for reproductions which the child is better than both the parents
 def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATION):
+    t0 = t.time()
     #RECUIT
     recuits = []
     for k in range(poplen):
@@ -320,16 +321,19 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         for i in range(len(population)) :
             p = random.random()
             if p < PMUTATION :
-                neighbour = random_neighbourAux(population[i],nb_machines)
-                if neighbour!=None:# if better than population[i]
-                    newpop.append(neighbour)
+                neighbour = random_neighbour(fst(population[i]))
+                neighbour_time = evaluate(neighbour, nb_machines)
+                if time < snd(population[i]):
+                    population[i] = (neighbour, neighbour_time)
+                else :
+                    population.append((neighbour, neighbour_time))
         #MATE
         for i in range( len(population)):
             for j in range (i,len(population)):
                 p = random.random()
                 if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
-                    if cand!=None :#IF NOT CLONE
+                    if cand!=None :#IF NOT CLONE --> attention seul reprod12 contient l'output none, pas les autres algos de reprod
                         newpop.append(cand)
         print("pop without offspring")
         print([snd(x) for x in population])
@@ -343,10 +347,9 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         print("TST")
         print(m2)
         while m1!=m2:
-            print("pop")
-            print([snd(x) for x in population])
-            if population[ind]==population[ind+1]:
+            if equal(population[ind], population[ind+1]):
                 population.pop(ind+1)
+                print("removing ind " + str(ind))
             else:
                 ind+=1
                 m1=population[ind]
@@ -363,6 +366,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
     for k in range(0, len(population[0][0])):
         solution.append(population[0][0][k].numero())
     print("Séquence solution", solution)
+    print("Temps du calcul : " + str(t.time() - t0) + " secondes")
 
 
 
@@ -371,4 +375,4 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 F = f.Flowshop()
 F.definir_par("jeu3.txt")
 F.creer_liste_NEH()
-seekBestReproductions(10, reproduction12,10,1,1)
+seekBestReproductions(50, reproduction12,10,.1,.2)
