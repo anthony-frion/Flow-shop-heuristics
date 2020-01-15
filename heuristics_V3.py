@@ -347,7 +347,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
         m2=population[len(population)-1]
         print("TST")
         while m1!=m2:
-            if equal(population[ind], population[ind+1]):
+            if population[ind] == population[ind+1]:
                 population.pop(ind+1)
                 print("removing ind " + str(ind))
             else:
