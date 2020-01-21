@@ -379,6 +379,6 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 
 # Tests
 F = f.Flowshop()
-F.definir_par("jeu3.txt")
+F.definir_par("tai01.txt")
 F.creer_liste_NEH()
 seekBestReproductions(50, reproduction12,10,.1,.2)

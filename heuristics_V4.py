@@ -315,11 +315,19 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
     for k in range(poplen):
         sequence, time = recuit(F, 50, 0.99, .5)
         recuits.append((sequence, time))
-    print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
+    result = [snd(x) for x in recuits], min([snd(x) for x in recuits]), max([snd(x) for x in recuits])
+    print(result)
     population = recuits
+    moyenne = 0
+    for k in range(len(result)):
+        moyenne += result[0][k]
+    print("Recuit : ", result)
+    print("Moyenne du recuit : ", moyenne / len(result))
+    print("Borne inférieure du recuit : ", result[1])
+    print("Max du recuit : ", result[2])
     nb_machines=F.nb_machines
     n=0
-    while n<ITERATIONS:
+    while n<ITERATIONS and t.time()-t0 < 790:
         n+=1
         newpop = []
 
