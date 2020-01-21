@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Fri Jan  3 16:56:13 2020
 @author: Anthony
@@ -167,17 +166,7 @@ def RightAuxReproduction1(seq1, seq2, cut_point,nb_machines):
 # Random reproduction of two sequences with one cut point
 def Leftreproduction1(seq1, seq2, nb_machines):
     cut_point = random.randint(0, len(seq1) - 1)
-    child=LeftAuxReproduction1(seq1, seq2, cut_point, nb_machines)
-    if child[0]==seq1 or child[0]==seq2 :
-        return None
-    return child
-
-def Rightreproduction1(seq1, seq2, nb_machines):
-    cut_point = random.randint(0, len(seq1) - 1)
-    child=RightAuxReproduction1(seq1, seq2, cut_point, nb_machines)
-    if child[0]==seq1 or child[0]==seq2 :
-        return None
-    return child
+    return LeftAuxReproduction1(seq1, seq2, cut_point, nb_machines)
 
 
 # Best possible reproduction of two sequences with one cut point
@@ -265,6 +254,24 @@ def reproduction2(seq1, seq2, F):
         cut_point1, cut_point2 = random.randint(0, len(seq1) - 1), random.randint(0, len(seq1) - 1)
     return auxReproduction2(seq1, seq2, cut_point1, cut_point2, F)
 
+def auxReproduction22(seq1, seq2, cut_point1, cut_point2, nb_machines) :
+    first_part = seq1[:cut_point1]
+    last_part = seq1[cut_point2:]
+    child_seq = first_part + last_part
+    for J in seq1[cut_point1: cut_point2]:
+        if J not in child_seq :
+            child_seq = bestInsertion(child_seq, J, nb_machines)
+    for J in seq2[cut_point1: cut_point2]:
+        if J not in child_seq :
+            child_seq = bestInsertion(child_seq, J, nb_machines)
+    time = evaluate(child_seq, nb_machines)
+    return child_seq, time
+
+def reproduction22(seq1, seq2, F):
+    cut_point1, cut_point2 = 0, 0
+    while cut_point1 >= cut_point2:
+        cut_point1, cut_point2 = random.randint(0, len(seq1) - 1), random.randint(0, len(seq1) - 1)
+    return auxReproduction22(seq1, seq2, cut_point1, cut_point2, F)
 
 # Best possible reproduction of two sequences with one cut point
 def bestReproduction2(seq1, seq2, F):
@@ -306,15 +313,9 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
     #RECUIT
     recuits = []
     for k in range(poplen):
-        sequence, time = recuit(F, 20, 0.99, .5)
+        sequence, time = recuit(F, 50, 0.99, .5)
         recuits.append((sequence, time))
-    result = [snd(x) for x in recuits], min([snd(x) for x in recuits])
-    moyenne = 0
-    for k in range (len(result)):
-        moyenne += result[0][k]
-    print("Recuit : ", result)
-    print("Moyenne du recuit : ", moyenne/len(result))
-    print("Borne inférieure du recuit : ", result[1])
+    print([snd(x) for x in recuits], min([snd(x) for x in recuits]))
     population = recuits
     nb_machines=F.nb_machines
     n=0
@@ -330,13 +331,13 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
             neighbour = random_neighbour(fst(population[i]))
             neighbour_time = evaluate(neighbour, nb_machines)
             p = random.random() * (1 + i / poplen) / 2
-            if neighbour_time < snd(population[i]) or p < PMUTATION:
+            if time < snd(population[i]) or p < PMUTATION:
                 population.append((neighbour, neighbour_time))
                 mutations += 1
         print("{} mutations effectuées".format(mutations))
         #MATE
-        for i in range( len(population)):
-            for j in range (i,len(population)):
+        for i in range(len(population)):
+            for j in range(len(population)):
                 p = random.random() * (1 + i/len(population) + j/len(population)) / 3
                 if p < PMATE :
                     cand = reproductionAlgorithm(fst(population[i]), fst(population[j]),nb_machines)
@@ -376,9 +377,8 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
 
 
 
-
 # Tests
 F = f.Flowshop()
-F.definir_par("jeu3.txt")
+F.definir_par("tai22.txt")
 F.creer_liste_NEH()
-seekBestReproductions(50, reproduction12,10,.1,.2)
+seekBestReproductions(40, reproduction22,20,.05,.05)
