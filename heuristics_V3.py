@@ -330,7 +330,7 @@ def seekBestReproductions(poplen, reproductionAlgorithm,ITERATIONS,PMATE,PMUTATI
             neighbour = random_neighbour(fst(population[i]))
             neighbour_time = evaluate(neighbour, nb_machines)
             p = random.random() * (1 + i / poplen) / 2
-            if time < snd(population[i]) or p < PMUTATION:
+            if neighbour_time < snd(population[i]) or p < PMUTATION:
                 population.append((neighbour, neighbour_time))
                 mutations += 1
         print("{} mutations effectuées".format(mutations))
